@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+var prueba;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -15,6 +17,7 @@ void main() async {
       vapidKey:
           "BAgpPGyfX4i4_RcvOpbXATQXrrnB4v6B2o8SPUCK4bs-LmHHQogdchSn0KIzIQjZATBcQZvzYmUG5pkkS6MGWfo");
 
+  prueba = fcmToken;
   print(fcmToken);
 
   FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -150,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const Text('Token '),
-            Text(fcmToken)
+            Text(prueba)
           ],
         ),
       ),
