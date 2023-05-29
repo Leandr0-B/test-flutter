@@ -153,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const Text('Token '),
-            Text(prueba)
+            SelectableText(prueba)
           ],
         ),
       ),
