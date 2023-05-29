@@ -2,6 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:flutter/services.dart';
 
 var prueba;
 
@@ -153,7 +154,8 @@ class _MyHomePageState extends State<MyHomePage> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const Text('Token '),
-            SelectableText(prueba)
+            SelectableText(prueba),
+            ClipboardWidget(textToCopy: prueba)
           ],
         ),
       ),
@@ -163,5 +165,28 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+class ClipboardWidget extends StatelessWidget {
+  final String textToCopy;
+
+  ClipboardWidget({required this.textToCopy});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        _copyToClipboard();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Texto copiado al portapapeles')),
+        );
+      },
+      child: Text('Copiar al portapapeles'),
+    );
+  }
+
+  void _copyToClipboard() {
+    Clipboard.setData(ClipboardData(text: textToCopy));
   }
 }
