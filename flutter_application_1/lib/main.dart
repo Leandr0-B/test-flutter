@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+String? notificacion = '';
+
 void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -35,7 +37,15 @@ void main() async {
     print('Message data: ${message.data}');
 
     if (message.notification != null) {
+      String? title = message.notification?.title;
+      String? body = message.notification?.body;
+
+      notificacion =
+          'Recibiste una notificacion. Titulo: ${title} Cuerpo: ${body}';
+
       print('Message also contained a notification: ${message.notification}');
+      print('Título: ${title ?? "Sin título"}');
+      print('Cuerpo: ${body ?? "Sin cuerpo"}');
     }
   });
 
@@ -107,6 +117,30 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('Got a message whilst in the foreground!');
+      print('Message data: ${message.data}');
+
+      if (message.notification != null) {
+        String? title = message.notification?.title;
+        String? body = message.notification?.body;
+
+        setState(() {
+          notificacion =
+              'Recibiste una notificacion. Titulo: ${title ?? ''} Cuerpo: ${body ?? ''}';
+        });
+
+        print('Message also contained a notification: ${message.notification}');
+        print('Título: ${title ?? "Sin título"}');
+        print('Cuerpo: ${body ?? "Sin cuerpo"}');
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -149,6 +183,10 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            Text(
+              notificacion ?? 'Sin notificaciones',
+              style: TextStyle(fontSize: 16),
             ),
           ],
         ),
