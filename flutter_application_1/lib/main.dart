@@ -220,7 +220,7 @@ class _MyHomePageState extends State<MyHomePage> {
               notificacion ?? 'Sin notificaciones',
               style: TextStyle(fontSize: 16),
             ),
-            //ClipboardWidget(textToCopy: prueba)
+            ClipboardWidget(textToCopy: prueba)
           ],
         ),
       ),
