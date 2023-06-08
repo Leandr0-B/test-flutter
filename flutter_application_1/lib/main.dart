@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
+import 'Notifications/notification_widget.dart';
 import 'package:http/http.dart' as http;
 
+var prueba;
 String? notificacion = '';
 final FirebaseMessaging messaging = FirebaseMessaging.instance;
 
@@ -31,6 +34,8 @@ void main() async {
     vapidKey:
         "BEFBbZpzZnDl-RhLiOFuppuuUb-bllW0g3skh2rzUwV2GeRpvyPxzCkibX7Wr7qz_xlE3wkCdR9cZWe4pCJszP8",
   );
+
+  prueba = token;
 
   print(token);
 
@@ -256,6 +261,7 @@ class _MyHomePageState extends State<MyHomePage> {
               notificacion ?? 'Sin notificaciones',
               style: TextStyle(fontSize: 16),
             ),
+            ClipboardWidget(textToCopy: prueba)
           ],
         ),
       ),
@@ -265,5 +271,28 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+class ClipboardWidget extends StatelessWidget {
+  final String textToCopy;
+
+  ClipboardWidget({required this.textToCopy});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        _copyToClipboard();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Texto copiado al portapapeles')),
+        );
+      },
+      child: Text('Copiar al portapapeles'),
+    );
+  }
+
+  void _copyToClipboard() {
+    Clipboard.setData(ClipboardData(text: textToCopy));
   }
 }
