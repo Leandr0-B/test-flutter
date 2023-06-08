@@ -1,14 +1,30 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'Notifications/notification_widget.dart';
+import 'package:flutter_application_1/BaseDeDatos/database_connection.dart';
+import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 
 var prueba;
 String? notificacion = '';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // usuarios.forEach((usuario) {
+  //   print('CI: ${usuario['ci']}');
+  //   print('Nombre: ${usuario['nombre']}');
+  //   print('Pass: ${usuario['pass']}');
+  //   print('Administrador: ${usuario['administrador']}');
+  //   print('Inactivo: ${usuario['inactivo']}');
+  //   print('--------------------');
+  // });
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -59,7 +75,13 @@ void main() async {
     }
   });
 
+  // final res = await http
+  //     .get(Uri.parse("https://residencialapi.azurewebsites.net/users"));
+  // final objetos = jsonDecode(res.body);
+  // print(objetos);
+
   runApp(const MyApp());
+  fetchAndPrintUsers();
 }
 
 class MyApp extends StatelessWidget {
@@ -198,7 +220,7 @@ class _MyHomePageState extends State<MyHomePage> {
               notificacion ?? 'Sin notificaciones',
               style: TextStyle(fontSize: 16),
             ),
-            ClipboardWidget(textToCopy: prueba)
+            //ClipboardWidget(textToCopy: prueba)
           ],
         ),
       ),
@@ -231,5 +253,15 @@ class ClipboardWidget extends StatelessWidget {
 
   void _copyToClipboard() {
     Clipboard.setData(ClipboardData(text: textToCopy));
+  }
+}
+
+void fetchAndPrintUsers() async {
+  try {
+    final usersData = await APIService.fetchUsers();
+    print(usersData);
+    // Aquí puedes procesar los datos y mostrarlos en tu aplicación
+  } catch (e) {
+    print('Error fetching users: $e');
   }
 }
