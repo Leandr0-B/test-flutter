@@ -1,16 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:http/http.dart' as http;
 
 String? notificacion = '';
+final FirebaseMessaging messaging = FirebaseMessaging.instance;
 
 void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   NotificationSettings settings = await messaging.requestPermission(
     alert: true,
@@ -32,24 +34,95 @@ void main() async {
 
   print(token);
 
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print('Got a message whilst in the foreground!');
-    print('Message data: ${message.data}');
+  List<String?> tokens = [];
 
-    if (message.notification != null) {
-      String? title = message.notification?.title;
-      String? body = message.notification?.body;
+  /*
+  //Mi token
+  tokens.add(token);
 
-      notificacion =
-          'Recibiste una notificacion. Titulo: ${title} Cuerpo: ${body}';
+  //Token lea
+  tokens.add(
+      'cz9_7QC-Z3VngC4M2T39tT:APA91bF3R-yUCcnzSf6HR_IN2vtFg28wkW_OKybXb48gos_QgcSvxHUF3NKc14nvgbNyOi3DXLzrOZEq4Ys6EBvPDNOIauJIapa6qpymCJHbg8dw_P4PSIarHlHYJuw49GAF9c5nVtEV');
 
-      print('Message also contained a notification: ${message.notification}');
-      print('Título: ${title ?? "Sin título"}');
-      print('Cuerpo: ${body ?? "Sin cuerpo"}');
-    }
-  });
+  sendPushMessageTokens(
+      tokens,
+      'Esta es una notificacion que se envia a varios tokens',
+      'Notificacion Multiple');
+
+  */
+  sendPushMessage(token, "Notificacion con tiempo",
+      "Notificacion"); //-> envia la notificacion al token
 
   runApp(const MyApp());
+}
+
+void sendPushMessage(String? token, String body, String title) async {
+  try {
+    await http.post(
+      Uri.parse('https://fcm.googleapis.com/fcm/send'),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization':
+            'key=AAAAETDov4g:APA91bHcsF5k0xIEr40AL6qlBqdIwWcabEcNe-w3Q3qARtgY4eBMK4G0t13TwL0XwEN0TmzV2m7h9h5HkmdFo02U2JdBv8UcsNgwmG2Ek47snBdn9DDQGAysCv3YJNZG2d76echcY9Tc'
+      },
+      body: jsonEncode(
+        <String, dynamic>{
+          'priority': 'high',
+          'data': <String, dynamic>{
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+            'status': 'done',
+            'body': body,
+            'title': title,
+          },
+          "notification": <String, dynamic>{
+            "title": title,
+            "body": body,
+          },
+          "to": token,
+          "webpush": {
+            "headers": {
+              "TTL":
+                  "86400", // Duración de la notificación en segundos (ejemplo: 1 hora)
+            }
+          },
+        },
+      ),
+    );
+  } catch (e) {
+    print("error al push");
+  }
+}
+
+void sendPushMessageTokens(
+    List<String?> tokens, String body, String title) async {
+  try {
+    await http.post(
+      Uri.parse('https://fcm.googleapis.com/fcm/send'),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization':
+            'key=AAAAETDov4g:APA91bHcsF5k0xIEr40AL6qlBqdIwWcabEcNe-w3Q3qARtgY4eBMK4G0t13TwL0XwEN0TmzV2m7h9h5HkmdFo02U2JdBv8UcsNgwmG2Ek47snBdn9DDQGAysCv3YJNZG2d76echcY9Tc'
+      },
+      body: jsonEncode(
+        <String, dynamic>{
+          'priority': 'high',
+          'data': <String, dynamic>{
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+            'status': 'done',
+            'body': body,
+            'title': title,
+          },
+          "notification": <String, dynamic>{
+            "title": title,
+            "body": body,
+          },
+          "registration_ids": tokens,
+        },
+      ),
+    );
+  } catch (e) {
+    print("error al push");
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -121,9 +194,6 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Got a message whilst in the foreground!');
-      print('Message data: ${message.data}');
-
       if (message.notification != null) {
         String? title = message.notification?.title;
         String? body = message.notification?.body;
@@ -132,8 +202,6 @@ class _MyHomePageState extends State<MyHomePage> {
           notificacion =
               'Recibiste una notificacion. Titulo: ${title ?? ''} Cuerpo: ${body ?? ''}';
         });
-
-        print('Message also contained a notification: ${message.notification}');
         print('Título: ${title ?? "Sin título"}');
         print('Cuerpo: ${body ?? "Sin cuerpo"}');
       }
