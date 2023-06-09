@@ -2,10 +2,8 @@ import 'package:http/http.dart' as http;
 
 class APIService {
   static Future<String> fetchUsers() async {
-    const test = 'patatitas';
-    print(test);
     final response = await http
-        .get(Uri.parse('https://residencialapi.azurewebsites.net/users'));
+        .get(Uri.parse('https://residencialapi.azurewebsites.net/users/list'));
     print(response);
     if (response.statusCode == 200) {
       return response.body;

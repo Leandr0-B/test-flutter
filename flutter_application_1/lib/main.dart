@@ -82,6 +82,31 @@ void main() async {
 
   runApp(const MyApp());
   fetchAndPrintUsers();
+
+  final url = Uri.parse('http://localhost:5000/users/crear');
+
+  final Map<String, dynamic> userData = {
+    'ci': '57345678',
+    'nombre': 'John Doe',
+    'pass': 'password123',
+    'administrador': true,
+    'inactivo': false,
+  };
+
+  final response = await http.post(
+    url,
+    body: jsonEncode(userData),
+    headers: {'Content-Type': 'application/json'},
+  );
+
+  if (response.statusCode == 200) {
+    // La solicitud fue exitosa
+    print('Solicitud POST exitosa');
+  } else {
+    // La solicitud falló
+    print(
+        'Error en la solicitud POST. Código de estado: ${response.statusCode}');
+  }
 }
 
 class MyApp extends StatelessWidget {
