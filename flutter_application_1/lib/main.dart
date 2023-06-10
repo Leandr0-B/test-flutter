@@ -81,7 +81,7 @@ void main() async {
   // print(objetos);
 
   runApp(const MyApp());
-  fetchAndPrintUsers();
+  //fetchAndPrintUsers();
 
   // final url = Uri.parse('http://localhost:3000/usuario/crear');
 
@@ -112,30 +112,35 @@ void main() async {
   //       'Error en la solicitud POST. Código de estado: ${response.statusCode}');
   // }
 
-  final url = Uri.parse('http://localhost:3000/login');
+  // final url = Uri.parse('http://localhost:3000/login');
 
-  final Map<String, dynamic> userData = {
-    'ci': '57345678',
-    'password': 'password123'
-  };
+  // final Map<String, dynamic> userData = {
+  //   'ci': '57345678',
+  //   'password': 'password123'
+  // };
 
-  final response = await http.post(
-    url,
-    body: jsonEncode(userData),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  );
+  // final response = await http.post(
+  //   url,
+  //   body: jsonEncode(userData),
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //   },
+  // );
 
-  if (response.statusCode == 200) {
-    // La solicitud fue exitosa
-    print('Solicitud POST exitosa');
-    print(response);
-  } else {
-    // La solicitud falló
-    print(
-        'Error en la solicitud POST. Código de estado: ${response.statusCode}');
-  }
+  // if (response.statusCode == 200) {
+  //   // La solicitud fue exitosa
+  //   print('Solicitud POST exitosa');
+  //   print(response);
+  // } else {
+  //   // La solicitud falló
+  //   print(
+  //       'Error en la solicitud POST. Código de estado: ${response.statusCode}');
+  // }
+
+  final String authToken =
+      await APIService.fetchAuthToken('57345678', 'password123');
+  final String userInfo = await APIService.fetchUserInfo(authToken);
+  print(userInfo);
 }
 
 class MyApp extends StatelessWidget {
