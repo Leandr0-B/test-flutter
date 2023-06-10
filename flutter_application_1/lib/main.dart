@@ -83,25 +83,54 @@ void main() async {
   runApp(const MyApp());
   fetchAndPrintUsers();
 
-  final url = Uri.parse('http://localhost:5000/users/crear');
+  // final url = Uri.parse('http://localhost:3000/usuario/crear');
+
+  // final Map<String, dynamic> userData = {
+  //   'ci': '57345678',
+  //   'nombre': 'John Doe',
+  //   'pass': 'password123',
+  //   'administrador': true,
+  //   'inactivo': false,
+  // };
+
+  // final response = await http.post(
+  //   url,
+  //   body: jsonEncode(userData),
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     'Authorization':
+  //         'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjaGVjayI6dHJ1ZSwiaWF0IjoxNjg2MzY0MTg3LCJleHAiOjE2ODY0MDczODd9.vxrvcp4iNmD4-Y46cGRZNIMkGJAST_W77M9B6VcZlrk'
+  //   },
+  // );
+
+  // if (response.statusCode == 200) {
+  //   // La solicitud fue exitosa
+  //   print('Solicitud POST exitosa');
+  // } else {
+  //   // La solicitud falló
+  //   print(
+  //       'Error en la solicitud POST. Código de estado: ${response.statusCode}');
+  // }
+
+  final url = Uri.parse('http://localhost:3000/login');
 
   final Map<String, dynamic> userData = {
     'ci': '57345678',
-    'nombre': 'John Doe',
-    'pass': 'password123',
-    'administrador': true,
-    'inactivo': false,
+    'password': 'password123'
   };
 
   final response = await http.post(
     url,
     body: jsonEncode(userData),
-    headers: {'Content-Type': 'application/json'},
+    headers: {
+      'Content-Type': 'application/json',
+    },
   );
 
   if (response.statusCode == 200) {
     // La solicitud fue exitosa
     print('Solicitud POST exitosa');
+    print(response);
   } else {
     // La solicitud falló
     print(
