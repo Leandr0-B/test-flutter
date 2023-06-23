@@ -5,16 +5,24 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
+import 'dart:html';
 
 String? notificacion = '';
-final FirebaseMessaging messaging = FirebaseMessaging.instance;
 
 void main() async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  NotificationSettings settings = await messaging.requestPermission(
+  inicializarFirebase();
+
+  runApp(const MyApp());
+}
+
+void inicializarFirebase() {
+  final messaging = FirebaseMessaging.instance;
+
+  messaging
+      .requestPermission(
     alert: true,
     announcement: false,
     badge: true,
@@ -22,38 +30,29 @@ void main() async {
     criticalAlert: false,
     provisional: false,
     sound: true,
-  );
+  )
+      .then((settings) {
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      obtenerTokenFirebase();
+    }
+  }).catchError((error) {
+    print('Error al solicitar los permisos: $error');
+    // Manejar el error de solicitud de permisos
+  });
+}
 
-  print('User granted permission: ${settings.authorizationStatus}');
+void obtenerTokenFirebase() {
+  final messaging = FirebaseMessaging.instance;
+  final vapidKey =
+      "BEFBbZpzZnDl-RhLiOFuppuuUb-bllW0g3skh2rzUwV2GeRpvyPxzCkibX7Wr7qz_xlE3wkCdR9cZWe4pCJszP8";
 
-  // use the returned token to send messages to users from your custom server
-  String? token = await messaging.getToken(
-    vapidKey:
-        "BEFBbZpzZnDl-RhLiOFuppuuUb-bllW0g3skh2rzUwV2GeRpvyPxzCkibX7Wr7qz_xlE3wkCdR9cZWe4pCJszP8",
-  );
-
-  print(token);
-
-  List<String?> tokens = [];
-
-  /*
-  //Mi token
-  tokens.add(token);
-
-  //Token lea
-  tokens.add(
-      'cz9_7QC-Z3VngC4M2T39tT:APA91bF3R-yUCcnzSf6HR_IN2vtFg28wkW_OKybXb48gos_QgcSvxHUF3NKc14nvgbNyOi3DXLzrOZEq4Ys6EBvPDNOIauJIapa6qpymCJHbg8dw_P4PSIarHlHYJuw49GAF9c5nVtEV');
-
-  sendPushMessageTokens(
-      tokens,
-      'Esta es una notificacion que se envia a varios tokens',
-      'Notificacion Multiple');
-
-  */
-  sendPushMessage(token, "Notificacion con tiempo",
-      "Notificacion"); //-> envia la notificacion al token
-
-  runApp(const MyApp());
+  messaging.getToken(vapidKey: vapidKey).then((token) {
+    print('Token de Firebase: $token');
+    // Aquí puedes continuar con el flujo de tu aplicación utilizando el token
+  }).catchError((error) {
+    print('Error al obtener el token de Firebase: $error');
+    // Manejar el error de solicitud del token de Firebase
+  });
 }
 
 void sendPushMessage(String? token, String body, String title) async {
@@ -178,6 +177,34 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  // It is assumed that all messages contain a data field with the key 'type'
+  Future<void> setupInteractedMessage() async {
+    // Get any messages which caused the application to open from
+    // a terminated state.
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    // If the message also contains a data property with a "type" of "chat",
+    // navigate to a chat screen
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+
+    // Also handle any interaction when the app is in the background via a
+    // Stream listener
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  }
+
+  void _handleMessage(RemoteMessage message) {
+    print('test ' + message.toString());
+    if (message.data['type'] == 'chat') {
+      Navigator.pushNamed(
+        context,
+        '/chat',
+      );
+    }
+  }
+
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -192,6 +219,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    setupInteractedMessage();
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (message.notification != null) {
